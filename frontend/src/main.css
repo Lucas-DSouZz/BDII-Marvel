@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+:root {
+    --background-color: #080D12;
+
+    --interface-color-1: #0B1118;
+    --interface-color-2: #121E29;
+    --interface-color-3: #233341;
+    --interface-color-4: #152C3D;
+
+    --text-color-1: #E4EDF5;
+    --text-color-2: #A0B2C2;
+    --text-color-3: #8CD4FF;
+    --text-color-4: #7B90A3;
+
+    --text-color-green: #8BC993;
+    --text-color-purple: #C077DD;
+    --text-color-red: #E19291;
+    --text-color-yellow: #DDB477;
+
+    --font-ss: "Inter", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+
+    --interface-border-1: 1px solid #233341;
+    --interface-border-2: 1px solid #7B90A3;
+
+    --tran-1: all ease 0.25s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+
+body {
+    background-color: var(--background-color);
+    height: 100vh;
+    overflow: hidden;
+}

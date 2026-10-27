@@ -1,0 +1,113 @@
+div.list-card {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-bottom: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 16px;
+    transition: var(--tran-1);
+}
+
+    div.list-card:hover {
+        background-color: var(--interface-color-4);
+        border-left: 1px solid var(--text-color-3);
+    }
+
+div.list-card.big { width: 1024px; }
+div.list-card.medium { width: 880px; }
+div.list-card.small { width: 720px; }
+
+div.list-card h1 {
+    color: var(--text-color-1);
+    font-family: var(--font-ss);
+    font-size: 16px;
+    font-weight: bold;
+    transition: var(--tran-1);
+}
+
+    div.list-card:hover h1 {
+        color: var(--text-color-3);
+    }
+
+div.list-card h2 {
+    color: var(--text-color-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: normal;
+    transition: var(--tran-1);
+}
+
+div.list-card p {
+    background-color: var(--interface-color-2);
+    border-radius: 4px;
+    color: var(--text-color-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+    div.list-card p.Operações.Táticas,
+    div.list-card p.Científica,
+    div.list-card p.Baixa,
+    div.list-card p.Herói,
+    div.list-card p.Ativo {
+        color: var(--text-color-green);
+    }
+
+    div.list-card p.Super-Heróis,
+    div.list-card p.Média,
+    div.list-card p.Neutro {
+        color: var(--text-color-3);
+    }
+
+    div.list-card p.Ameaça.Criminosa,
+    div.list-card p.Mercenários,
+    div.list-card p.Alta,
+    div.list-card p.Anti-herói,
+    div.list-card p.Inativo {
+        color: var(--text-color-yellow);
+    }
+
+    div.list-card p.Ameaça.Global,
+    div.list-card p.Global,
+    div.list-card p.Vilão,
+    div.list-card p.Falecido {
+        color: var(--text-color-red);
+    }
+
+    div.list-card p.Cósmica {
+        color: var(--text-color-purple);
+    }
+
+div.list-card .__section {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+
+div.list-card img {
+    border-radius: 4px;
+    object-fit: cover;
+    object-position: center;
+}
+
+div.list-card img.square {
+    height: 64px;
+    width: 64px;
+}
+
+div.list-card img.vert {
+    height: 64px;
+    width: 48px;
+}
+
+div.list-card img.hor {
+    height: 64px;
+    width: 96px;
+}

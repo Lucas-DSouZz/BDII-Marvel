@@ -1,0 +1,35 @@
+.custom-button {
+    align-items: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: bold;
+    gap: 8px;
+    justify-content: center;
+    outline: none;
+    padding: 12px 16px;
+    transition: var(--tran-1);
+}
+
+    .custom-button:hover {
+        filter: brightness(1.10);
+    }
+
+    .custom-button.action {
+        background-color: var(--text-color-3);
+        color: var(--background-color);
+    }
+
+    .custom-button.neutral {
+        background-color: var(--text-color-1);
+        color: var(--background-color);
+    }
+
+.custom-button span {
+    cursor: pointer;
+}

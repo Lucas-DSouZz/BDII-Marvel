@@ -1,0 +1,195 @@
+div.list-page {
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+header.list-page {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    user-select: none;
+}
+
+header.list-page div {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+header.list-page div h1 {
+    color: var(--text-color-1);
+    font-family: var(--font-ss);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header.list-page div h2 {
+    background-color: var(--interface-color-2);
+    border: var(--interface-border-1);
+    border-radius: 4px;
+    color: var(--text-color-3);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: normal;
+    padding: 4px;
+}
+
+div.list-page .__list {
+    user-select: none;
+}
+
+div.list-page .__list.big { width: 1024px; }
+div.list-page .__list.medium { width: 880px; }
+div.list-page .__list.small { width: 720px; }
+
+div.list-page .__search {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+div.list-page .__search .search-container {
+    align-items: center;
+    background-color: var(--background-color);
+    border: var(--interface-border-1);
+    border-radius: 8px;
+    color: var(--text-color-2);
+    cursor: text;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    gap: 8px;
+    padding: 12px 16px;
+    transition: var(--tran-1);
+}
+
+    div.list-page .__search .search-container:hover,
+    div.list-page .__search .search-container:focus-within {
+        border: var(--interface-border-2);
+    }
+
+div.list-page .__search .search-container input {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color-2);
+    font-family: var(--font-ss);
+    font-size: 16px;
+    outline: none;
+    width: 100%;
+}
+
+div.list-page .__search .search-actions {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+div.list-page .__loading {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-bottom: none;
+    color: var(--text-color-2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+    padding: 24px;
+}
+
+div.list-page .__loading .spin {
+    animation: spin 1s linear infinite;
+}
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+div.list-page .__loading p {
+    font-family: var(--font-mono);
+    font-size: 16px;
+}
+
+div.list-page .__notice {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-bottom: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    padding: 24px;
+}
+
+div.list-page .__notice h1 {
+    color: var(--text-color-3);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+div.list-page .__notice p {
+    color: var(--text-color-2);
+    font-family: var(--font-ss);
+    font-size: 16px;
+}
+
+div.list-page .__header {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-bottom: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 16px;
+}
+
+div.list-page .__header h1 {
+    color: var(--text-color-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+div.list-page .__header .extras {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+div.list-page .__header h2 {
+    color: var(--text-color-4);
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+div.list-page .__footer {
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 8px 16px;
+}
+
+div.list-page .__footer {
+    color: var(--text-color-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
