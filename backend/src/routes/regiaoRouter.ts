@@ -201,4 +201,86 @@ router.get("/filtros", async (_req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const regiao = await pool.query(
+            `
+                SELECT
+                    r.id,
+                    r.nome,
+                    r.realidade,
+                    r.tipo,
+                    r.url_imagem
+                FROM regiao r
+                WHERE r.id = $1
+            `,
+            [id]
+        );
+
+        if (regiao.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found"
+            });
+        }
+
+        const individuos = await pool.query(
+            `
+                SELECT
+                    ir.id_individuo AS id,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.alinhamento,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo_regiao ir
+                JOIN individuo i ON i.id = ir.id_individuo
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = ir.id_individuo
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                WHERE ir.id_regiao = $1
+                ORDER BY i.nome 
+            `,
+            [id]
+        );
+
+        const eventos = await pool.query(
+            `
+                SELECT
+                    er.id_evento AS id,
+                    e.nome,
+                    e.nivel_ameaca,
+                    e.data_inicio,
+                    e.data_fim
+                FROM evento_regiao er
+                JOIN evento e ON e.id = er.id_evento
+                WHERE er.id_regiao = $1
+                ORDER BY e.nome
+            `,
+            [id]
+        );
+
+        res.json({
+            regiao: regiao.rows[0],
+            individuos: individuos.rows,
+            eventos: eventos.rows
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
 export default router;

@@ -375,7 +375,7 @@ export default function EquipamentosPage() {
                         <h1>Equipamento</h1>
 
                         <div className="extras">
-                            <h2>Origem</h2>
+                            <h2>Origem,</h2>
                             <h2>Tipo</h2>
                         </div>
                     </section>

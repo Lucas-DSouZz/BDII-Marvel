@@ -188,7 +188,7 @@ div.list-page .__footer {
     padding: 8px 16px;
 }
 
-div.list-page .__footer {
+div.list-page .__footer p {
     color: var(--text-color-2);
     font-family: var(--font-mono);
     font-size: 14px;

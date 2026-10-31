@@ -140,4 +140,113 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const habilidade = await pool.query(
+            `
+                SELECT
+                    h.id,
+                    h.nome,
+                    h.origem,
+                    h.descricao
+                FROM habilidade h
+                WHERE h.id = $1
+            `,
+            [id]
+        );
+
+        if (habilidade.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found"
+            });
+        }
+
+        const equips = await pool.query(
+            `
+                SELECT
+                    de.id_equipamento AS id,
+                    e.nome,
+                    e.tipo,
+                    e.url_imagem
+                FROM dependencia_equipamento de
+                JOIN equipamento e ON e.id = de.id_equipamento
+                WHERE de.id_habilidade = $1
+                ORDER BY e.nome 
+            `,
+            [id]
+        );
+
+        const habs_dependentes = await pool.query(
+            `
+                SELECT
+                    dh.id_hab_dependente AS id,
+                    h.nome,
+                    h.origem
+                FROM dependencia_habilidade dh
+                JOIN habilidade h ON h.id = dh.id_hab_dependente
+                WHERE dh.id_hab_requisito = $1
+                ORDER BY h.nome
+            `,
+            [id]
+        );
+
+        const habs_requisitos = await pool.query(
+            `
+                SELECT
+                    dh.id_hab_requisito AS id,
+                    h.nome,
+                    h.origem
+                FROM dependencia_habilidade dh
+                JOIN habilidade h ON h.id = dh.id_hab_requisito
+                WHERE dh.id_hab_dependente = $1
+                ORDER BY h.nome
+            `,
+            [id]
+        );
+
+        const usuarios = await pool.query(
+            `
+                SELECT
+                    ih.id_individuo AS id,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo_habilidade ih
+                JOIN individuo i ON i.id = ih.id_individuo
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = ih.id_individuo
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                WHERE ih.id_habilidade = $1
+                ORDER BY i.nome
+            `,
+            [id]
+        );
+
+        res.json({
+            habilidade: habilidade.rows[0],
+            equips: equips.rows,
+            habs_dependentes: habs_dependentes.rows,
+            habs_requisitos: habs_requisitos.rows,
+            usuarios: usuarios.rows
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
 export default router;

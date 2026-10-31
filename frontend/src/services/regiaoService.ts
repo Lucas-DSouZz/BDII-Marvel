@@ -1,7 +1,7 @@
 import { API_URL } from "./apiServices";
 
 import type { PageResponse } from "../types/apiTypes";
-import type { RegioesResponse, FiltrosRegioesResponse } from "../types/regiaoTypes";
+import type { RegioesResponse, FiltrosRegioesResponse, RegiaoResponse } from "../types/regiaoTypes";
 
 export async function getRegioes(
     filtros : Record<string, string> = {}
@@ -29,4 +29,17 @@ export async function getFiltrosRegioes() : Promise<FiltrosRegioesResponse> {
         throw new Error("Unable to query.");
 
     return response.json() as Promise<FiltrosRegioesResponse>
+}
+
+export async function getRegiao(
+    id: string
+) : Promise<RegiaoResponse> {
+    const response = await fetch(
+        `${API_URL}/api/regiao/${id}`
+    );
+
+    if (!response.ok)
+        throw { status: response.status };
+
+    return response.json() as Promise<RegiaoResponse>
 }

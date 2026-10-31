@@ -223,6 +223,7 @@ router.get("/", async (req, res) => {
                     SELECT codinome
                     FROM codinome
                     WHERE id_individuo = i.id
+                        AND data_fim IS NULL
                     ORDER BY data_inicio DESC NULLS LAST, id DESC
                     LIMIT 1
                 ) c ON true
@@ -288,6 +289,269 @@ router.get("/filtros", async (_req, res) => {
     catch (error) {
         console.error("Error: ", error);
 
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const individuo = await pool.query(
+            `
+                SELECT
+                    i.id,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.alinhamento,
+                    i.status,
+                    i.data_nascimento,
+                    i.humano,
+                    i.mutante,
+                    i.alienigena,
+                    i.sintetico,
+                    i.url_imagem
+                FROM individuo i
+                WHERE i.id = $1
+            `,
+            [id]
+        );
+
+        if (individuo.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found"
+            });
+        }
+
+        const equipamentos = await pool.query(
+            `
+                SELECT
+                    ie.id_equipamento AS id,
+                    e.nome,
+                    e.tipo,
+                    e.url_imagem
+                FROM individuo_equipamento ie
+                JOIN equipamento e ON e.id = ie.id_equipamento
+                WHERE ie.id_individuo = $1
+                ORDER BY e.nome
+            `,
+            [id]
+        );
+
+        const equipes = await pool.query(
+            `
+                SELECT
+                    ie.id_equipe AS id,
+                    ie.papel,
+                    ie.data_entrada,
+                    ie.data_saida,
+                    e.nome,
+                    e.tipo
+                FROM individuo_equipe ie
+                JOIN equipe e ON e.id = ie.id_equipe
+                WHERE ie.id_individuo = $1
+                ORDER BY e.nome
+            `,
+            [id]
+        );
+
+        const eventos = await pool.query(
+            `
+                SELECT
+                    ie.id_evento AS id,
+                    ie.papel,
+                    ie.resultado_individual,
+                    e.nome,
+                    e.nivel_ameaca,
+                    e.data_inicio,
+                    e.data_fim
+                FROM individuo_evento ie
+                JOIN evento e ON e.id = ie.id_evento
+                WHERE ie.id_individuo = $1
+                ORDER BY e.nome
+            `,
+            [id]
+        );
+
+        const habilidades = await pool.query(
+            `
+                SELECT
+                    ih.id_habilidade AS id,
+                    h.nome,
+                    h.origem
+                FROM individuo_habilidade ih
+                JOIN habilidade h ON h.id = ih.id_habilidade
+                WHERE ih.id_individuo = $1
+                ORDER BY h.nome
+            `,
+            [id]
+        );
+
+        const regioes = await pool.query(
+            `
+                SELECT
+                    ir.id_regiao AS id,
+                    r.nome,
+                    r.realidade,
+                    r.tipo,
+                    r.url_imagem
+                FROM individuo_regiao ir
+                JOIN regiao r ON r.id = ir.id_regiao
+                WHERE ir.id_individuo = $1
+                ORDER BY r.nome
+            `,
+            [id]
+        );
+
+        const aliados = await pool.query(
+            `
+                SELECT
+                    i.id,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.alinhamento,
+                    i.status,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo i
+                JOIN aliados a 
+                    ON (
+                        a.id_individuo1 = $1
+                        AND i.id = a.id_individuo2
+                    )
+                    OR (
+                        a.id_individuo2 = $1
+                        AND i.id = a.id_individuo1
+                    )
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = i.id
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                ORDER BY i.nome
+            `,
+            [id]
+        );
+
+        const inimigos = await pool.query(
+            `
+                SELECT
+                    i.id,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.alinhamento,
+                    i.status,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo i
+                JOIN inimigos ini 
+                    ON (
+                        ini.id_individuo1 = $1
+                        AND i.id = ini.id_individuo2
+                    )
+                    OR (
+                        ini.id_individuo2 = $1
+                        AND i.id = ini.id_individuo1
+                    )
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = i.id
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                ORDER BY i.nome
+            `,
+            [id]
+        );
+
+        const codinomes = await pool.query(
+            `
+                SELECT
+                    c.codinome,
+                    c.data_inicio,
+                    c.data_fim
+                FROM codinome c
+                WHERE c.id_individuo = $1
+                ORDER BY c.codinome
+            `,
+            [id]
+        );
+
+        const humano = await pool.query(
+            `
+                SELECT
+                    h.documento,
+                    h.pais
+                FROM humano h
+                WHERE h.id_individuo = $1
+            `,
+            [id]
+        );
+
+        const mutante = await pool.query(
+            `
+                SELECT
+                    m.fator_gatilho,
+                    m.descricao_mutacao
+                FROM mutante m
+                WHERE m.id_individuo = $1
+            `,
+            [id]
+        );
+
+        const alienigena = await pool.query(
+            `
+                SELECT
+                    a.especie,
+                    a.planeta_nativo
+                FROM alienigena a
+                WHERE a.id_individuo = $1
+            `,
+            [id]
+        );
+
+        const sintetico = await pool.query(
+            `
+                SELECT
+                    s.fabricante,
+                    s.material
+                FROM sintetico s
+                WHERE s.id_individuo = $1
+            `,
+            [id]
+        );
+
+        
+        res.json({
+            individuo: individuo.rows[0],
+            equipamentos: equipamentos.rows,
+            equipes: equipes.rows,
+            eventos: eventos.rows,
+            habilidades: habilidades.rows,
+            regioes: regioes.rows,
+            aliados: aliados.rows,
+            inimigos: inimigos.rows,
+            codinomes: codinomes.rows,
+            humano: humano.rows[0],
+            mutante: mutante.rows[0],
+            alienigena: alienigena.rows[0],
+            sintetico: sintetico.rows[0],
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
         res.status(500).json({
             message: "Unable to query."
         });

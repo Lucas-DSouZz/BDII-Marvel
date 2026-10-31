@@ -35,19 +35,6 @@ header.layout .__left h2 {
     font-weight: normal;
 }
 
-header.layout .__center {
-    align-items: center;
-    color: var(--text-color-2);
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-}
-
-header.layout .__center p {
-    font-family: var(--font-mono);
-    font-size: 14px;
-}
-
 header.layout .__right {
     align-items: center;
     display: flex;

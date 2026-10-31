@@ -1,6 +1,6 @@
 import { API_URL } from "./apiServices";
 
-import type { HabilidadesResponse } from "../types/habilidadeTypes";
+import type { HabilidadeResponse, HabilidadesResponse } from "../types/habilidadeTypes";
 import type { PageResponse } from "../types/apiTypes";
 
 export async function getHabilidades(
@@ -17,4 +17,17 @@ export async function getHabilidades(
         throw new Error("Unable to query.");
 
     return response.json() as Promise<PageResponse<HabilidadesResponse>>;
+}
+
+export async function getHabilidade(
+    id: string
+) : Promise<HabilidadeResponse> {
+    const response = await fetch(
+        `${API_URL}/api/habilidade/${id}`
+    );
+
+    if (!response.ok)
+        throw { status: response.status };
+
+    return response.json() as Promise<HabilidadeResponse>
 }

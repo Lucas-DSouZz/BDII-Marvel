@@ -172,4 +172,79 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const coligacao = await pool.query(
+            `
+                SELECT
+                    c.id,
+                    c.nome,
+                    c.ideologia,
+                    c.data_fundacao
+                FROM coligacao c
+                WHERE c.id = $1
+            `,
+            [id]
+        );
+
+        if (coligacao.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found."
+            });
+        }
+
+        const equipes = await pool.query(
+            `
+                SELECT
+                    e.id,
+                    e.nome,
+                    e.tipo,
+                    ec.data_afiliacao,
+                    ec.nivel_influencia
+                FROM equipe_coligacao ec
+                JOIN equipe e ON e.id = ec.id_equipe
+                WHERE ec.id_coligacao = $1
+            `,
+            [id]
+        );
+
+        const guerras = await pool.query(
+            `
+                SELECT
+                    g.nome,
+                    g.id_evento_correspondente,
+                    dg.motivo,
+                    c.nome AS coligacao_inimiga
+                FROM declara_guerra dg
+                JOIN guerra g ON dg.id = g.id_declaracao
+                JOIN coligacao c ON c.id = CASE
+                    WHEN $1 = dg.id_coligacao1
+                        THEN dg.id_coligacao2
+                    WHEN $1 = dg.id_coligacao2
+                        THEN dg.id_coligacao1
+                END
+                WHERE dg.id_coligacao1 = $1
+                    OR dg.id_coligacao2 = $1
+            `,
+            [id]
+        );
+
+        res.json({
+            coligacao: coligacao.rows[0],
+            equipes: equipes.rows,
+            guerras: guerras.rows
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
 export default router;

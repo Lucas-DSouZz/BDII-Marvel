@@ -581,8 +581,8 @@ export default function IndividuosPage() {
                         <h1>Indivíduo</h1>
 
                         <div className="extras">
-                            <h2>Nível de amaça</h2>
-                            <h2>Alinhamento</h2>
+                            <h2>Nível de amaça,</h2>
+                            <h2>Alinhamento,</h2>
                             <h2>Status</h2>
                         </div>
                     </section>

@@ -1,6 +1,6 @@
 import { API_URL } from "./apiServices";
 
-import type { EventosResponse, FiltrosEventosResponse } from "../types/eventoTypes";
+import type { EventoResponse, EventosResponse, FiltrosEventosResponse } from "../types/eventoTypes";
 import type { PageResponse } from "../types/apiTypes";
 
 export async function getEventos(
@@ -29,4 +29,17 @@ export async function getFiltrosEventos() : Promise<FiltrosEventosResponse> {
         throw new Error("Unable to query.");
 
     return response.json() as Promise<FiltrosEventosResponse>
+}
+
+export async function getEvento(
+    id: string
+) : Promise<EventoResponse> {
+    const response = await fetch(
+        `${API_URL}/api/evento/${id}`
+    );
+
+    if (!response.ok)
+        throw { status: response.status };
+
+    return response.json() as Promise<EventoResponse>
 }

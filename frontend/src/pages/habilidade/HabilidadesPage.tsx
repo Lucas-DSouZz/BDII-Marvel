@@ -277,7 +277,7 @@ export default function HabilidadesPage() {
                         <h1>Habilidade</h1>
 
                         <div className="extras">
-                            <h2>Origem</h2>
+                            <h2>Origem,</h2>
                             <h2>Nº Indivíduos</h2>
                         </div>
                     </section>

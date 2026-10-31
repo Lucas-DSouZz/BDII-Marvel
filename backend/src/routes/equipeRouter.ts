@@ -203,4 +203,87 @@ router.get("/filtros", async (_req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const equipe = await pool.query(
+            `
+                SELECT
+                    e.id,
+                    e.nome,
+                    e.tipo,
+                    e.descricao,
+                    e.data_fundacao
+                FROM equipe e
+                WHERE e.id = $1
+            `,
+            [id]
+        );
+
+        if (equipe.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found."
+            });
+        }
+
+        const coligacoes = await pool.query(
+            `
+                SELECT
+                    ec.id_coligacao AS id,
+                    ec.data_afiliacao,
+                    ec.nivel_influencia,
+                    c.nome
+                FROM equipe_coligacao ec
+                JOIN coligacao c ON c.id = ec.id_coligacao
+                WHERE ec.id_equipe = $1
+            `,
+            [id]
+        );
+
+        const membros = await pool.query(
+            `
+                SELECT
+                    ie.id_individuo AS id,
+                    ie.papel,
+                    ie.data_entrada,
+                    ie.data_saida,
+                    i.nome,
+                    i.realidade,
+                    i.nivel_ameaca,
+                    i.status,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo_equipe ie
+                JOIN individuo i ON i.id = ie.id_individuo
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = ie.id_individuo
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                WHERE ie.id_equipe = $1
+                ORDER BY i.nome
+            `,
+            [id]
+        );
+
+        res.json({
+            equipe: equipe.rows[0],
+            coligacoes: coligacoes.rows,
+            membros: membros.rows
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
 export default router;

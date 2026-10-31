@@ -30,6 +30,14 @@
         color: var(--background-color);
     }
 
+    .custom-button.ui {
+        background-color: var(--interface-color-1);
+        border: var(--interface-border-1);
+        border-radius: 8px;
+        color: var(--text-color-3);
+        padding: 16px;
+    }
+
 .custom-button span {
     cursor: pointer;
 }

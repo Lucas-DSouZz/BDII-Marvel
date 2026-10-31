@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import type { ButtonHTMLAttributes } from "react";
 import type { Icon } from "@phosphor-icons/react";
 
@@ -7,9 +7,10 @@ import "./Buttons.css";
 interface NLButtonProps {
     IconLeft?: Icon;
     IconRight?: Icon;
-    Text: string;
+    Text?: string;
     Theme: string;
-    To: string;
+    To?: string;
+    Back?: boolean;
 }
 
 export function NLButton({
@@ -17,27 +18,51 @@ export function NLButton({
     IconRight,
     Text,
     Theme,
-    To
+    To,
+    Back = false
 } : NLButtonProps) {
+    const navigate = useNavigate();
+
+    const content = (
+        <div className={`custom-button ${Theme}`}>
+            {IconLeft && (
+                <IconLeft
+                    size={16}
+                    weight="bold"
+                />
+            )}
+            
+            {Text 
+                ? <span>{Text}</span> 
+                : ""
+            }
+            
+            {IconRight && (
+                <IconRight
+                    size={16}
+                    weight="bold"
+                />
+            )}
+        </div>
+    );
+
+    if (Back) {
+        return (
+            <a 
+                href="#"
+                onClick={(e) => {
+                    e.preventDefault();
+                    navigate(-1);
+                }}
+            >
+                {content}
+            </a>
+        )
+    }
+
     return (
-        <NavLink to={To}>
-            <div className={`custom-button ${Theme}`}>
-                {IconLeft && (
-                    <IconLeft
-                        size={16}
-                        weight="bold"
-                    />
-                )}
-                
-                <span>{Text}</span>
-                
-                {IconRight && (
-                    <IconRight
-                        size={16}
-                        weight="bold"
-                    />
-                )}
-            </div>
+        <NavLink to={To ?? "/"}>
+            {content}
         </NavLink>
     );
 }
@@ -69,7 +94,10 @@ export function CustomButton({
                     />
                 )}
                 
-                <span>{Text}</span>
+                {Text 
+                    ? <span>{Text}</span> 
+                    : ""
+                }
                 
                 {IconRight && (
                     <IconRight

@@ -31,6 +31,8 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    scrollbar-color: var(--interface-color-3) var(--interface-color-2);
+    scrollbar-width: thin;
     text-decoration: none;
 }
 

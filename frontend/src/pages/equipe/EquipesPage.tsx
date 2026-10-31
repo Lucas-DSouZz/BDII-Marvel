@@ -420,7 +420,7 @@ export default function EquipesPage() {
                         <h1>Equipe</h1>
 
                         <div className="extras">
-                            <h2>Tipo</h2>
+                            <h2>Tipo,</h2>
                             <h2>Nº Membros</h2>
                         </div>
                     </section>

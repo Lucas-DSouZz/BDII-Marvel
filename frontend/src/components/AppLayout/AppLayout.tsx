@@ -1,6 +1,5 @@
 import { 
     CrosshairIcon, 
-    GlobeIcon, 
     LightningIcon, 
     LinkIcon, 
     MapPinAreaIcon, 
@@ -28,15 +27,6 @@ export default function AppLayout() {
                         <h2>STRATEGIC HOMELAND INTERVENTION,</h2>
                         <h2>ENFORCEMENT AND LOGISTIC DIVISION</h2>
                     </div>
-                </div>
-
-                <div className="__center">
-                    <GlobeIcon 
-                        size={20}
-                        weight="regular"
-                    />
-
-                    <p>REDE DE INTELIGÊNCIA GLOBAL / TERRA 616</p>
                 </div>
 
                 <div className="__right">

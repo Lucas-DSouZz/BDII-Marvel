@@ -171,4 +171,83 @@ router.get("/filtros", async (_req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const equipamento = await pool.query(
+            `
+                SELECT
+                    e.id,
+                    e.nome,
+                    e.tipo,
+                    e.origem,
+                    e.descricao,
+                    e.url_imagem
+                FROM equipamento e
+                WHERE e.id = $1
+            `,
+            [id]
+        );
+
+        if (equipamento.rows.length === 0) {
+            return res.status(404).json({
+                error: "Not found."
+            });
+        }
+
+        const dependentes = await pool.query(
+            `
+                SELECT
+                    de.id_habilidade AS id,
+                    h.nome,
+                    h.descricao
+                FROM dependencia_equipamento de
+                JOIN habilidade h ON h.id = de.id_habilidade
+                WHERE de.id_equipamento = $1
+            `,
+            [id]
+        );
+
+        const donos = await pool.query(
+            `
+                SELECT
+                    ie.id_individuo AS id,
+                    i.nome,
+                    i.realidade,
+                    i.alinhamento,
+                    i.status,
+                    i.url_imagem,
+                    c.codinome
+                FROM individuo_equipamento ie
+                JOIN individuo i ON i.id = ie.id_individuo
+                LEFT JOIN LATERAL (
+                    SELECT codinome
+                    FROM codinome
+                    WHERE id_individuo = ie.id_individuo
+                        AND data_fim IS NULL
+                    ORDER BY data_inicio DESC NULLS LAST, id DESC
+                    LIMIT 1
+                ) c ON true
+                WHERE ie.id_equipamento = $1
+            `,
+            [id]
+        );
+
+        res.json({
+            equipamento: equipamento.rows[0],
+            dependentes: dependentes.rows,
+            donos: donos.rows
+        });
+    }
+
+    catch (error) {
+        console.error("Error: ", error);
+        
+        res.status(500).json({
+            message: "Unable to query."
+        });
+    }
+});
+
 export default router;

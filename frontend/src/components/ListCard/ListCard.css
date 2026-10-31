@@ -60,7 +60,8 @@ div.list-card p {
 
     div.list-card p.Super-Heróis,
     div.list-card p.Média,
-    div.list-card p.Neutro {
+    div.list-card p.Neutro,
+    div.list-card p.Governamental {
         color: var(--text-color-3);
     }
 

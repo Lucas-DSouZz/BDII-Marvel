@@ -465,7 +465,7 @@ export default function EventosPage() {
                         <h1>Evento</h1>
 
                         <div className="extras">
-                            <h2>Nível de ameaça</h2>
+                            <h2>Nível de ameaça,</h2>
                             <h2>Nº Envolvidos</h2>
                         </div>
                     </section>

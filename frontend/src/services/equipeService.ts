@@ -1,6 +1,6 @@
 import { API_URL } from "./apiServices";
 
-import type { EquipesResponse, FiltrosEquipesResponse } from "../types/equipeTypes";
+import type { EquipeResponse, EquipesResponse, FiltrosEquipesResponse } from "../types/equipeTypes";
 import type { PageResponse } from "../types/apiTypes";
 
 export async function getEquipes(
@@ -29,4 +29,17 @@ export async function getFiltrosEquipes() : Promise<FiltrosEquipesResponse> {
         throw new Error("Unable to query.");
 
     return response.json() as Promise<FiltrosEquipesResponse>
+}
+
+export async function getEquipe(
+    id: string
+) : Promise<EquipeResponse> {
+    const response = await fetch(
+        `${API_URL}/api/equipe/${id}`
+    );
+
+    if (!response.ok)
+        throw { status: response.status };
+
+    return response.json() as Promise<EquipeResponse>
 }
