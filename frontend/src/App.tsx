@@ -1,5 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
+import FingerprintScanner from "./components/FingerprintScanner/FingerprintScanner";
 import AppLayout from "./components/AppLayout/AppLayout";
 
 import ColigacoesPage from "./pages/coligacao/ColigacoesPage";
@@ -19,9 +20,17 @@ import RegiaoPage from "./pages/regiao/RegiaoPage";
 import IndividuoPage from "./pages/individuo/IndividuoPage";
 
 export default function App() {
+    const navigate = useNavigate();
+
     return (
         <Routes>
-            <Route path="/" element={<AppLayout />}>
+            <Route path="/" element={
+                <FingerprintScanner 
+                    onSuccess={() => navigate("/individuo")}
+                />
+            }/>
+
+            <Route element={<AppLayout />}>
                 <Route path="coligacao" element={<ColigacoesPage />} />
                 <Route path="coligacao/:id" element={<ColigacaoPage />} />
 

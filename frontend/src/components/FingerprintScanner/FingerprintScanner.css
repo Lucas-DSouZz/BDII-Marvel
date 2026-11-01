@@ -1,0 +1,217 @@
+div.fp-aux {
+    align-items: center;
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    width: 100vw;
+}
+
+section.fingerprint {
+    align-items: center;
+    background-color: var(--interface-color-1);
+    border: var(--interface-border-1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 32Px;
+    justify-content: center;
+    padding: 32px;
+    user-select: none;
+}
+
+section.fingerprint header {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    justify-content: center;
+    width: 100% ;
+}
+
+section.fingerprint header .aux {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+section.fingerprint header img {
+    height: 48px;
+    width: 48px;
+}
+
+section.fingerprint header h1 {
+    color: var(--text-color-1);
+    font-family: var(--font-ss);
+    font-size: 24px;
+    font-weight: normal;
+}
+
+section.fingerprint header h2 {
+    color: var(--text-color-2);
+    font-family: var(--font-ss);
+    font-size: 12px;
+    font-weight: normal;
+}
+
+section.fingerprint header p {
+    color: var(--text-color-3);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: normal;
+}
+
+section.fingerprint button {
+    align-items: center;
+    background-color: var(--interface-color-2);
+    border: var(--interface-border-1);
+    border-radius: 4px;
+    color: var(--text-color-3);
+    cursor: pointer;
+    display: flex;
+    height: 256px;
+    justify-content: center;
+    position: relative;
+    transition: var(--tran-1);
+    width: 192px;
+}
+
+    section.fingerprint button:hover,
+    section.fingerprint button.scanning {
+        border: var(--interface-border-2);
+    }
+
+    section.fingerprint button.scanning {
+        background-color: #192B3B;
+    }
+
+    section.fingerprint button.success {
+        border-color: var(--text-color-green);
+        color: var(--text-color-green);
+    }
+
+section.fingerprint button .__corner {
+    border: 0 solid var(--text-color-4);
+    height: 16px;
+    position: absolute;
+    transition: var(--tran-1);
+    width: 16px;
+}
+
+    section.fingerprint button.success .__corner {
+        border-color: var(--text-color-green);
+    }
+
+section.fingerprint button .__corner.tl {
+    border-left-width: 1px;
+    border-top-width: 1px;
+    left: 8px;
+    top: 8px;
+}
+
+section.fingerprint button .__corner.tr {
+    border-right-width: 1px;
+    border-top-width: 1px;
+    right: 8px;
+    top: 8px;
+}
+
+section.fingerprint button .__corner.bl {
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    bottom: 8px;
+    left: 8px;
+}
+
+section.fingerprint button .__corner.br {
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    bottom: 8px;
+    right: 8px;
+}
+
+section.fingerprint button .__icon {
+    background-color: var(--text-color-4);
+    height: 144px;
+    mask-image: url("../../assets/fingerprint.svg");
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    transition: var(--tran-1);
+    width: 144px;
+}
+
+    section.fingerprint button.scanning .__icon {
+        background-color: var(--text-color-3);
+    }
+
+    section.fingerprint button.success .__icon {
+        background-color: var(--text-color-3);
+    }
+
+section.fingerprint button .__scan-line {
+    animation: fingerprint-scan 1.5s linear infinite;
+    background-color: var(--text-color-3);
+    border-radius: 8px;
+    height: 4px;
+    left: 16px;
+    pointer-events: none;
+    position: absolute;
+    right: 16px;
+    top: 0;
+}
+
+section.fingerprint button .__success {
+    align-items: center;
+    animation: fingerprint-success 0.25s ease-out;
+    background-color: var(--interface-color-1);
+    border: 1px soldi var(--text-color-green);
+    border-radius: 50%;
+    color: var(--text-color-green);
+    display: flex;
+    font-family: var(--font-ss);
+    font-size: 24px;
+    height: 48px;
+    justify-content: center;
+    position: absolute;
+    width: 48px;
+}
+
+section.fingerprint footer {
+    color: #4C5861;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    margin-top: 32px;
+}
+
+@keyframes fingerprint-scan {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(256px);
+        opacity: 0;
+    }
+}
+
+@keyframes fingerprint-success {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
