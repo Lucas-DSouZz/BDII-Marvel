@@ -9,6 +9,8 @@ import { getEventos } from "../../services/eventoService";
 import type { EventosResponse } from "../../types/eventoTypes";
 import type { IndividuosResponse } from "../../types/individuoTypes";
 
+import { API_URL } from "../../services/apiServices";
+
 export default function AddRegiaoPage() {
     const navigate = useNavigate();
 
@@ -173,7 +175,7 @@ export default function AddRegiaoPage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/regiao", {
+            const rsp = await fetch(`${API_URL}/api/regiao`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

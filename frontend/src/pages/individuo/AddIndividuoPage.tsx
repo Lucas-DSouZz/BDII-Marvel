@@ -19,6 +19,7 @@ import type { RegioesResponse } from "../../types/regiaoTypes";
 import type { EventosResponse } from "../../types/eventoTypes";
 import type { IndividuosResponse } from "../../types/individuoTypes";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../services/apiServices";
 
 export default function AddIndividuoPage() {
     const navigate = useNavigate();
@@ -702,7 +703,7 @@ export default function AddIndividuoPage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/individuo", {
+            const rsp = await fetch(`${API_URL}/api/individuo`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

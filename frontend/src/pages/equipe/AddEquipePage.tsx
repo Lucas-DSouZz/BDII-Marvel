@@ -8,6 +8,8 @@ import { getColigacoes } from "../../services/coligacaoServices";
 import { CustomButton, NLButton } from "../../components/Buttons/Buttons";
 import { CaretDownIcon, CaretLeftIcon, CaretUpIcon, CircleNotchIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
 
+import { API_URL } from "../../services/apiServices";
+
 export default function AddEquipePage() {
     const navigate = useNavigate();
 
@@ -258,7 +260,7 @@ export default function AddEquipePage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/equipe", {
+            const rsp = await fetch(`${API_URL}/api/equipe`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -8,6 +8,8 @@ import { getEquipes } from "../../services/equipeService";
 
 import type { EquipesResponse } from "../../types/equipeTypes";
 
+import { API_URL } from "../../services/apiServices";
+
 export default function AddColigacaoPage() {
     const navigate = useNavigate();
 
@@ -148,7 +150,7 @@ export default function AddColigacaoPage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/coligacao", {
+            const rsp = await fetch(`${API_URL}/api/coligacao`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

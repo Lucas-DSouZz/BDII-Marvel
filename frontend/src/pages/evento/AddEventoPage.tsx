@@ -9,6 +9,7 @@ import type { RegioesResponse } from "../../types/regiaoTypes";
 import { getRegioes } from "../../services/regiaoService";
 import type { ColigacoesResponse } from "../../types/coligacaoTypes";
 import { getColigacoes } from "../../services/coligacaoServices";
+import { API_URL } from "../../services/apiServices";
 
 export default function AddEventoPage() {
     const navigate = useNavigate();
@@ -375,7 +376,7 @@ export default function AddEventoPage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/evento", {
+            const rsp = await fetch(`${API_URL}/api/evento`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

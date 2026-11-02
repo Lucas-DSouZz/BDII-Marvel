@@ -10,6 +10,8 @@ import { getHabilidades } from "../../services/habilidadeService";
 import type { EquipamentosResponse } from "../../types/equipamentoTypes";
 import { getEquipamentos } from "../../services/equipamentoService";
 
+import { API_URL } from "../../services/apiServices";
+
 export default function AddHabilidadePage() {
     const navigate = useNavigate();
 
@@ -345,7 +347,7 @@ export default function AddHabilidadePage() {
         };
 
         try {
-            const rsp = await fetch("http://localhost:1629/api/habilidade", {
+            const rsp = await fetch(`${API_URL}/api/habilidade`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
