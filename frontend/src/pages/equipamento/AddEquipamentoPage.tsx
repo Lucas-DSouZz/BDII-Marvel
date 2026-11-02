@@ -8,8 +8,6 @@ import { CaretDownIcon, CaretLeftIcon, CaretUpIcon, CircleNotchIcon, PlusIcon, X
 import type { HabilidadesResponse } from "../../types/habilidadeTypes";
 import { getHabilidades } from "../../services/habilidadeService";
 
-import { API_URL } from "../../services/apiServices";
-
 export default function AddEquipamentoPage() {
     const navigate = useNavigate();
 
@@ -191,7 +189,7 @@ export default function AddEquipamentoPage() {
         };
 
         try {
-            const rsp = await fetch(`${API_URL}/api/equipamento`, {
+            const rsp = await fetch(`https://bdii-marvel.onrender.com/api/equipamento`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

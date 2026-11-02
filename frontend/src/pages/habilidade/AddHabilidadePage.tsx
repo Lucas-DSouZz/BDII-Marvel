@@ -10,8 +10,6 @@ import { getHabilidades } from "../../services/habilidadeService";
 import type { EquipamentosResponse } from "../../types/equipamentoTypes";
 import { getEquipamentos } from "../../services/equipamentoService";
 
-import { API_URL } from "../../services/apiServices";
-
 export default function AddHabilidadePage() {
     const navigate = useNavigate();
 
@@ -347,7 +345,7 @@ export default function AddHabilidadePage() {
         };
 
         try {
-            const rsp = await fetch(`${API_URL}/api/habilidade`, {
+            const rsp = await fetch(`https://bdii-marvel.onrender.com/api/habilidade`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

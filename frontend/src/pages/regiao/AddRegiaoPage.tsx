@@ -9,8 +9,6 @@ import { getEventos } from "../../services/eventoService";
 import type { EventosResponse } from "../../types/eventoTypes";
 import type { IndividuosResponse } from "../../types/individuoTypes";
 
-import { API_URL } from "../../services/apiServices";
-
 export default function AddRegiaoPage() {
     const navigate = useNavigate();
 
@@ -175,7 +173,7 @@ export default function AddRegiaoPage() {
         };
 
         try {
-            const rsp = await fetch(`${API_URL}/api/regiao`, {
+            const rsp = await fetch(`https://bdii-marvel.onrender.com/api/regiao`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
