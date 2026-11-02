@@ -257,6 +257,344 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            realidade,
+            nivel_ameaca,
+            alinhamento,
+            status,
+            data_nascimento,
+            url_imagem,
+
+            humano,
+            documento,
+            pais,
+
+            mutante,
+            fator_gatilho,
+            descricao_mutacao,
+
+            alienigena,
+            especie,
+            planeta_nativo,
+
+            sintetico,
+            fabricante,
+            material,
+            
+            codinomes,
+            habilidades,
+            equipamentos,
+            equipes,
+            regioes,
+            eventos,
+            aliados,
+            inimigos
+        } = req.body;
+
+        if (
+            typeof nome !== "string" || !nome.trim()
+            || typeof realidade !== "string" || !realidade.trim()
+            || !nivel_ameaca 
+            || !alinhamento
+            || !status
+        )
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(codinomes)
+            || !Array.isArray(habilidades)
+            || !Array.isArray(equipamentos)
+            || !Array.isArray(equipes)
+            || !Array.isArray(regioes)
+            || !Array.isArray(eventos)
+            || !Array.isArray(aliados)
+            || !Array.isArray(inimigos)
+        )
+            return res.status(400).json({
+                message: "Invalid relationship data."
+            });
+
+        await client.query("BEGIN");
+
+        const individuoRes = await client.query(
+            `
+                INSERT INTO individuo (
+                    nome,
+                    realidade,
+                    nivel_ameaca,
+                    alinhamento,
+                    status,
+                    data_nascimento,
+                    humano,
+                    mutante,
+                    alienigena,
+                    sintetico,
+                    url_imagem
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3::tipo_nivel_ameaca,
+                    $4::tipo_alinhamento,
+                    $5::tipo_status,
+                    $6,
+                    $7,
+                    $8,
+                    $9,
+                    $10,
+                    $11
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                realidade.trim(),
+                nivel_ameaca,
+                alinhamento,
+                status,
+                data_nascimento || null,
+                Boolean(humano),
+                Boolean(mutante),
+                Boolean(alienigena),
+                Boolean(sintetico),
+                url_imagem || null
+            ]
+        );
+
+        const idIndividuo = individuoRes.rows[0].id;
+
+        if (humano) {
+            await client.query(
+                `
+                    INSERT INTO humano (
+                        id_individuo,
+                        documento,
+                        pais
+                    )
+                    VALUES ($1, $2, $3)
+                `,
+                [idIndividuo, documento || null, pais || null]
+            );
+        }
+
+        if (mutante) {
+            await client.query(
+                `
+                    INSERT INTO mutante (
+                        id_individuo,
+                        fator_gatilho,
+                        descricao_mutacao
+                    )
+                    VALUES ($1, $2, $3)
+                `,
+                [idIndividuo, fator_gatilho || null, descricao_mutacao || null]
+            );
+        }
+
+        if (alienigena) {
+            await client.query(
+                `
+                    INSERT INTO alienigena (
+                        id_individuo,
+                        especie,
+                        planeta_nativo
+                    )
+                    VALUES ($1, $2, $3)
+                `,
+                [idIndividuo, especie || null, planeta_nativo || null]
+            );
+        }
+
+        if (sintetico) {
+            await client.query(
+                `
+                    INSERT INTO sintetico (
+                        id_individuo,
+                        fabricante,
+                        material
+                    )
+                    VALUES ($1, $2, $3)
+                `,
+                [idIndividuo, fabricante || null, material || null]
+            );
+        }
+
+        for (const c of codinomes) {
+            if (
+                typeof c.codinome !== "string"
+                || !c.codinome.trim()
+            )
+                throw new Error("Invalid codename.");
+
+            await client.query(
+                `
+                    INSERT INTO codinome (
+                        id_individuo,
+                        codinome,
+                        data_inicio,
+                        data_fim
+                    )
+                    VALUES ($1, $2, $3, $4)
+                `,
+                [
+                    idIndividuo,
+                    c.codinome.trim(),
+                    c.data_inicio || null,
+                    c.data_fim || null
+                ]
+            );
+        }
+
+        for (const h of habilidades) {
+            await client.query(
+                `
+                    INSERT INTO individuo_habilidade (
+                        id_individuo,
+                        id_habilidade
+                    )
+                    VALUES ($1, $2)
+                `,
+                [idIndividuo, h.id]
+            );
+        }
+
+        for (const e of equipamentos) {
+            await client.query(
+                `
+                    INSERT INTO individuo_equipamento (
+                        id_individuo,
+                        id_equipamento
+                    )
+                    VALUES ($1, $2)
+                `,
+                [idIndividuo, e.id]
+            );
+        }
+
+        for (const e of equipes) {
+            if (
+                typeof e.papel !== "string"
+                || !e.papel.trim()
+            )
+                throw new Error("Invalid team.");
+
+            await client.query(
+                `
+                    INSERT INTO individuo_equipe (
+                        id_individuo,
+                        id_equipe,
+                        papel,
+                        data_entrada,
+                        data_saida
+                    )
+                    VALUES ($1, $2, $3, $4, $5)
+                `,
+                [
+                    idIndividuo,
+                    e.id,
+                    e.papel.trim(),
+                    e.data_entrada || null,
+                    e.data_saida || null
+                ]
+            );
+        }
+
+        for (const r of regioes) {
+            await client.query(
+                `
+                    INSERT INTO individuo_regiao (
+                        id_individuo,
+                        id_regiao
+                    )
+                    VALUES ($1, $2)
+                `,
+                [idIndividuo, r.id]
+            );
+        }
+
+        for (const e of eventos) {
+            if (
+                typeof e.papel !== "string"
+                || !e.papel.trim()
+                || typeof e.resultado_individual !== "string"
+                || !e.resultado_individual.trim()
+            )
+                throw new Error("Invalid event.");
+
+            await client.query(
+                `
+                    INSERT INTO individuo_evento (
+                        id_individuo,
+                        id_evento,
+                        papel,
+                        resultado_individual
+                    )
+                    VALUES ($1, $2, $3, $4)
+                `,
+                [
+                    idIndividuo,
+                    e.id,
+                    e.papel.trim(),
+                    e.resultado_individual.trim()
+                ]
+            );
+        }
+
+        for (const a of aliados) {
+            await client.query(
+                `
+                    INSERT INTO aliados (
+                        id_individuo1,
+                        id_individuo2
+                    )
+                    VALUES ($1, $2)
+                `,
+                [idIndividuo, a.id]
+            );
+        }
+
+        for (const i of inimigos) {
+            await client.query(
+                `
+                    INSERT INTO inimigos (
+                        id_individuo1,
+                        id_individuo2
+                    )
+                    VALUES ($1, $2)
+                `,
+                [idIndividuo, i.id]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idIndividuo,
+            message: "Individual created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/filtros", async (_req, res) => {
     try {
         const [alinhamentos, niveisAmeaca, realidades, status] = await Promise.all([

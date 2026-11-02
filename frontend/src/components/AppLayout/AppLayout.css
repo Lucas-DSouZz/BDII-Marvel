@@ -135,7 +135,7 @@ main {
     align-items: center;
     display: flex;
     flex: 1;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 81px);
     justify-content: center;
     overflow-y: auto;
     padding: 32px;

@@ -24,6 +24,9 @@
     --interface-border-1: 1px solid #233341;
     --interface-border-2: 1px solid #7B90A3;
 
+    --error-color: #CA403D;
+    --border-error: 1px solid #CA403D;
+
     --tran-1: all ease 0.25s;
 }
 

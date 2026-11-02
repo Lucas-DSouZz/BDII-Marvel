@@ -140,6 +140,150 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            origem,
+            descricao,
+
+            equipamentos,
+            dependentes,
+            requisitos,
+            usuarios
+        } = req.body;
+
+        if (
+            typeof nome !== "string" || !nome.trim()
+            || typeof origem !== "string" || !origem.trim()
+        ) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(equipamentos)
+            || !Array.isArray(dependentes)
+            || !Array.isArray(requisitos)
+            || !Array.isArray(usuarios)
+        )
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const habRes = await client.query(
+            `
+                INSERT INTO habilidade (
+                    nome,
+                    origem,
+                    descricao
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                origem.trim(),
+                descricao.trim(),
+            ]
+        );
+
+        const idHab = habRes.rows[0].id;
+
+        for (const e of equipamentos) {
+            await client.query(
+                `
+                    INSERT INTO dependencia_equipamento (
+                        id_habilidade,
+                        id_equipamento
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    idHab,
+                    e.id
+                ]
+            );
+        }
+
+        for (const d of dependentes) {
+            await client.query(
+                `
+                    INSERT INTO dependencia_habilidade (
+                        id_hab_dependente,
+                        id_hab_requisito
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    d.id,
+                    idHab
+                ]
+            );
+        }
+
+        for (const r of requisitos) {
+            await client.query(
+                `
+                    INSERT INTO dependencia_habilidade (
+                        id_hab_dependente,
+                        id_hab_requisito
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    idHab,
+                    r.id
+                ]
+            );
+        }
+
+        for (const u of usuarios) {
+            await client.query(
+                `
+                    INSERT INTO individuo_habilidade (
+                        id_individuo,
+                        id_habilidade
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    u.id,
+                    idHab
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idHab,
+            message: "Team created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/:id", async (req, res) => {
     try {
         const { id } = req.params;

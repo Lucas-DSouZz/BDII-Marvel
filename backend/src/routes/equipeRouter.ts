@@ -181,6 +181,139 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            tipo,
+            descricao,
+            data_fundacao,
+
+            membros,
+            coligacoes
+        } = req.body;
+
+        if (
+            typeof nome !== "string" || !nome.trim()
+            || !tipo
+        ) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(membros)
+            || !Array.isArray(coligacoes)
+        )
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const equipeRes = await client.query(
+            `
+                INSERT INTO equipe (
+                    nome,
+                    tipo,
+                    descricao,
+                    data_fundacao
+                )
+                VALUES (
+                    $1,
+                    $2::tipo_equipe,
+                    $3,
+                    $4
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                tipo,
+                descricao,
+                data_fundacao || null
+            ]
+        );
+
+        const idEquipe = equipeRes.rows[0].id;
+
+        for (const m of membros) {
+            if (
+                typeof m.papel !== "string"
+                || !m.papel.trim()
+            )
+                throw new Error("Invalid member.");
+
+            await client.query(
+                `
+                    INSERT INTO individuo_equipe (
+                        id_individuo,
+                        id_equipe,
+                        papel,
+                        data_entrada,
+                        data_saida
+                    )
+                    VALUES ($1, $2, $3, $4, $5)
+                `,
+                [
+                    m.id,
+                    idEquipe,
+                    m.papel.trim(),
+                    m.data_entrada || null,
+                    m.data_saida || null
+                ]
+            );
+        }
+
+        for (const c of coligacoes) {
+            await client.query(
+                `
+                    INSERT INTO equipe_coligacao (
+                        id_equipe,
+                        id_coligacao,
+                        data_afiliacao,
+                        nivel_influencia
+                    )
+                    VALUES (
+                        $1,
+                        $2,
+                        $3,
+                        $4::tipo_influencia
+                    )
+                `,
+                [
+                    idEquipe,
+                    c.id,
+                    c.data_afiliacao || null,
+                    c.nivel_influencia
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idEquipe,
+            message: "Team created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/filtros", async (_req, res) => {
     try {
         const tipos = await pool.query(

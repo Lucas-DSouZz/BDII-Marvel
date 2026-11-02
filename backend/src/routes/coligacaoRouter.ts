@@ -172,6 +172,100 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            ideologia,
+            data_fundacao,
+
+            equipes
+        } = req.body;
+
+        if (typeof nome !== "string" || !nome.trim()) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (!Array.isArray(equipes))
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const coligacaoRes = await client.query(
+            `
+                INSERT INTO coligacao (
+                    nome,
+                    ideologia,
+                    data_fundacao
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                ideologia,
+                data_fundacao || null
+            ]
+        );
+
+        const idColigacao = coligacaoRes.rows[0].id;
+
+        for (const e of equipes) {
+            await client.query(
+                `
+                    INSERT INTO equipe_coligacao (
+                        id_equipe,
+                        id_coligacao,
+                        data_afiliacao,
+                        nivel_influencia
+                    )
+                    VALUES (
+                        $1,
+                        $2,
+                        $3,
+                        $4::tipo_influencia
+                    )
+                `,
+                [
+                    e.id,
+                    idColigacao,
+                    e.data_afiliacao || null,
+                    e.nivel_influencia
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idColigacao,
+            message: "Coalition created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/:id", async (req, res) => {
     try {
         const { id } = req.params;

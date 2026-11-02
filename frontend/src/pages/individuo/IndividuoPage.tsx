@@ -75,7 +75,7 @@ export default function IndividuoPage() {
                     Back
                 />
 
-                <h1>INDIVIDUO :: {id}</h1>
+                <h1>INDIVÍDUO :: {id}</h1>
            </header>
 
             <div className="__single big">

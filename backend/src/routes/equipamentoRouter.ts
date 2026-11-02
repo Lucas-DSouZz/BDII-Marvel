@@ -146,6 +146,122 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            tipo,
+            origem,
+            descricao,
+            url_imagem,
+
+            usuarios,
+            habilidades
+        } = req.body;
+
+        if (typeof nome !== "string" || !nome.trim()) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(usuarios)
+            || !Array.isArray(habilidades)
+        )
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const equipamentoRes = await client.query(
+            `
+                INSERT INTO equipamento (
+                    nome,
+                    tipo,
+                    origem,
+                    descricao,
+                    url_imagem
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                tipo.trim(),
+                origem.trim(),
+                descricao.trim(),
+                url_imagem || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+            ]
+        );
+
+        const idEquipamento = equipamentoRes.rows[0].id;
+
+        for (const u of usuarios) {
+            await client.query(
+                `
+                    INSERT INTO individuo_equipamento (
+                        id_individuo,
+                        id_equipamento
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    u.id,
+                    idEquipamento
+                ]
+            );
+        }
+
+        for (const h of habilidades) {
+            await client.query(
+                `
+                    INSERT INTO dependencia_equipamento (
+                        id_habilidade,
+                        id_equipamento
+                    )
+                    VALUES (
+                        $1,
+                        $2
+                    )
+                `,
+                [
+                    h.id,
+                    idEquipamento
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idEquipamento,
+            message: "Equipment created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/filtros", async (_req, res) => {
     try {
         const tipos = await pool.query(

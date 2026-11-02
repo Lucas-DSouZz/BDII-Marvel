@@ -165,6 +165,122 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            realidade,
+            tipo,
+            url_imagem,
+
+            eventos,
+            individuos
+        } = req.body;
+
+        if (
+            typeof nome !== "string" || !nome.trim()
+            || typeof realidade !== "string" || !realidade.trim()
+            || typeof tipo !== "string" || !tipo.trim()
+        ) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(eventos)
+            || !Array.isArray(individuos)
+        )
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const regiaoRes = await client.query(
+            `
+                INSERT INTO regiao (
+                    nome,
+                    realidade,
+                    tipo,
+                    url_imagem
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                realidade.trim(),
+                tipo.trim(),
+                url_imagem || "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+            ]
+        );
+
+        const idRegiao = regiaoRes.rows[0].id;
+
+        for (const e of eventos) {
+            await client.query(
+                `
+                    INSERT INTO evento_regiao (
+                        id_evento,
+                        id_regiao
+                    )
+                    VALUES ($1, $2)
+                `,
+                [
+                    e.id,
+                    idRegiao
+                ]
+            );
+        }
+
+        for (const i of individuos) {
+            await client.query(
+                `
+                    INSERT INTO individuo_regiao (
+                        id_regiao,
+                        id_individuo
+                    )
+                    VALUES (
+                        $1,
+                        $2
+                    )
+                `,
+                [
+                    idRegiao,
+                    i.id
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idRegiao,
+            message: "Team created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/filtros", async (_req, res) => {
     try {
         const [realidades, tipos] = await Promise.all([

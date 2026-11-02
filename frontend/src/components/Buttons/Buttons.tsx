@@ -71,7 +71,7 @@ export function NLButton({
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     IconLeft?: Icon;
     IconRight?: Icon;
-    Text: string;
+    Text?: string;
     Theme: string;
 }
 

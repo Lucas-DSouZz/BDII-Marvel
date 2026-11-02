@@ -214,6 +214,178 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post("/", async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const {
+            nome,
+            nivel_ameaca,
+            descricao,
+            data_inicio,
+            data_fim,
+
+            regioes,
+            individuos,
+
+            guerra,
+            hasGuerra
+        } = req.body;
+
+        if (
+            typeof nome !== "string" || !nome.trim()
+            || !nivel_ameaca
+            || typeof descricao !== "string" || !descricao.trim()
+        ) 
+            return res.status(400).json({
+                message: "Missing required fields."
+            });
+
+        if (
+            !Array.isArray(regioes)
+            || !Array.isArray(individuos)
+        )
+            return res.status(400).json({
+                    message: "Invalid relationship data."
+                });
+
+        await client.query("BEGIN");
+
+        const eventoRes = await client.query(
+            `
+                INSERT INTO evento (
+                    nome,
+                    nivel_ameaca,
+                    descricao,
+                    data_inicio,
+                    data_fim
+                )
+                VALUES (
+                    $1,
+                    $2::tipo_nivel_ameaca,
+                    $3,
+                    $4,
+                    $5
+                )
+                RETURNING id
+            `,
+            [
+                nome.trim(),
+                nivel_ameaca,
+                descricao.trim(),
+                data_inicio || null,
+                data_fim || null
+            ]
+        );
+
+        const idEvento = eventoRes.rows[0].id;
+
+        for (const r of regioes) {
+            await client.query(
+                `
+                    INSERT INTO evento_regiao (
+                        id_evento,
+                        id_regiao
+                    )
+                    VALUES (
+                        $1,
+                        $2
+                    )
+                `,
+                [idEvento, r.id]
+            );
+        }
+
+        for (const i of individuos) {
+            if (
+                typeof i.papel !== "string" || !i.papel.trim()
+                || typeof i.resultado_individual !== "string" || !i.resultado_individual.trim()
+            )
+                throw new Error("Invalid member.");
+
+            await client.query(
+                `
+                    INSERT INTO individuo_evento (
+                        id_evento,
+                        id_individuo,
+                        papel,
+                        resultado_individual
+                    )
+                    VALUES ($1, $2, $3, $4)
+                `,
+                [
+                    idEvento,
+                    i.id,
+                    i.papel,
+                    i.resultado_individual
+                ]
+            );
+        }
+
+        if (hasGuerra) {
+            console.log(guerra.id1);
+            console.log(guerra.id2);
+            console.log(guerra.nome);
+            console.log(guerra.motivo);
+
+            const guerraRes = await client.query(
+                `
+                    INSERT INTO declara_guerra (
+                        id_coligacao1,
+                        id_coligacao2,
+                        motivo
+                    )
+                    VALUES ($1, $2, $3)
+                    RETURNING id
+                `,
+                [
+                    guerra.id1,
+                    guerra.id2,
+                    guerra.motivo
+                ]
+            );
+
+            const idGuerra = guerraRes.rows[0].id;
+
+            await client.query(
+                `
+                    INSERT INTO guerra (
+                        nome,
+                        id_declaracao,
+                        id_evento_correspondente
+                    )
+                    VALUES ($1, $2, $3)
+                `,
+                [
+                    guerra.nome,
+                    idGuerra,
+                    idEvento
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return res.status(201).json({
+            id: idEvento,
+            message: "Team created."
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        await client.query("ROLLBACK");
+
+        return res.status(500).json({
+            message: "Unable to create."
+        });
+    }
+
+    finally {
+        client.release();
+    }
+});
+
 router.get("/filtros", async (_req, res) => {
     try {
         const niveis = await pool.query(
